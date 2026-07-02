@@ -1,10 +1,11 @@
 # MicroPython Raw Flash Exploration on the Raspberry Pi Pico
-
-### A Hands-On Courseware-like Guide
+### A Hands-On Courseware Guide
 
 ---
 
-> **Disclaimer:** This is not official documentation. It was developed through curiosity, datasheet reading, source code spelunking, and AI-assisted learning. Expect rough edges. Expect to hit walls. Probably errors. That's the point, we are learning, documenting, and discovering.
+
+
+> **Disclaimer:** This is not official documentation. It was developed through curiosity, datasheet reading, source code spelunking, and AI-assisted learning over the course of an evening. Expect rough edges. Expect to hit walls. Probably errors. That's the point, we are learning, documenting, and discovering right now, we are not deploying production devices.
 
 ---
 
@@ -177,6 +178,21 @@ ports/rp2/boards/RPI_PICO_W/mpconfigboard.cmake:set(MICROPY_HW_FLASH_STORAGE_BYT
 
 The W variant reserves more flash for the CYW43 WiFi driver. This is why you should use a plain Pico for this exercise.
 
+**Flash layout comparison:**
+
+```
+Pico (RPI_PICO)                      Pico W (RPI_PICO_W)
+2MB total                             2MB total
+
+0x000000  ┐                           0x000000  ┐
+          │  MicroPython firmware                │  MicroPython firmware
+          │  + CYW43 WiFi driver
+          │                                      │
+0x0A0000  ┼  littlefs (1408KB)        0x12C000  ┼  littlefs (848KB)
+          │                                      │
+0x200000  ┘                           0x200000  ┘
+```
+
 ---
 
 ### Task 2.2 — Find Where the Filesystem Starts
@@ -254,6 +270,22 @@ fs starts at:   0xa0000
 firmware ends:  0x86500
 playground:     105216 bytes
                 25 blocks
+```
+
+**Flash map (theoretical, stable build):**
+
+```
+0x000000  ┐
+          │  MicroPython firmware (~537KB)
+          │
+0x086500  ┼  firmware ends here
+          │
+          │  ~115KB unused (your playground)
+          │  blocks 134–159
+          │
+0x0A0000  ┼  littlefs filesystem starts (1408KB)
+          │
+0x200000  ┘  end of flash
 ```
 
 > **Note:** The ELF analysis is based on a specific build. The actual firmware running on your Pico may be larger (especially preview builds), leaving no gap. See Part 3 for how to verify empirically.
@@ -348,6 +380,23 @@ static rp2_flash_obj_t rp2_flash_obj = {
 ```
 
 It only knows about the filesystem partition. The firmware region is protected. This is not a bug.
+
+**What `rp2.Flash` can and cannot see:**
+
+```
+0x000000  ┐
+          │  MicroPython firmware       ← NOT accessible via rp2.Flash
+          │
+0x086500  ┼  firmware end
+          │
+          │  playground gap             ← NOT accessible via rp2.Flash
+          │
+0x0A0000  ┼─────────────────────────── ← rp2.Flash block 0 starts here
+          │
+          │  littlefs filesystem        ← rp2.Flash blocks 0–351
+          │
+0x200000  ┘─────────────────────────── ← rp2.Flash block 351 ends here
+```
 
 ### Why XIP and Raw SPI Can't Coexist
 
