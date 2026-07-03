@@ -415,7 +415,7 @@ You now have three ways to read the same physical byte:
 3. Raw SPI (03h command)    — all 512 blocks, read+write+erase, requires external chip
 ```
 
-When the DIP-8 Winbond chips arrive, you'll do it the third way — manually sending `03h` read commands over `machine.SPI` — and verify the bytes match what `mem32` returned. Same chip, same data, three layers of abstraction removed one at a time.
+Same chip, same data, three layers of abstraction removed one at a time.
 
 ---
 
