@@ -1,0 +1,12 @@
+
+Unit            Bits            Bytes          Pages         Sectors        Blocks
+---------------------------------------------------------------------------------------
+1 Transistor  = 1 Bit
+1 Byte        = 8 Bits        = 1 Byte
+1 Page        = 2,048 Bits    = 256 Bytes    = 1 Page
+1 Sector      = 32,768 Bits   = 4,096 Bytes  = 16 Pages     = 1 Sector
+1 Block       = 524,288 Bits  = 65,536 Bytes = 256 Pages    = 16 Sectors    = 1 Block
+16 MB (Total) = 134,217,728 B = 16.78M Bytes = 65,536 Pages = 4,096 Sectors = 256 Blocks
+
+
+
